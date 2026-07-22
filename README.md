@@ -1,2 +1,3 @@
-# spi-vhdl
-Implementation of the Serial Peripheral Interface (SPI) communication protocol.
+# SPI implementation in VHDL
+Implementation of the Serial Peripheral Interface (SPI) communication protocol using VHDL.
+
