@@ -1,11 +1,42 @@
+--------------------------------------------------------------------------------
+-- File : spi_master_tb.vhd
+-- Project : SPI implementation in VHDL
+-- Creation : 21-07-2026
+-- Limitations : none
+-- Errors : none known
+-- Simulator : NVC
+-- Synthesizer : -
+-- Platform : MacOS
+-- Targets : Simulation
+---------------------------------------
+-- Authors : Roi López Barata
+-- Organization : -
+-- Email : r.lopezbarata@gmail.com
+--------------------------------------------------------------------------------
+-- Copyright Notice
+-- This work is licensed under the MIT License.
+--------------------------------------------------------------------------------
+-- Function description
+-- This is a testbench for the SPI master module. It simulates the behavior of
+-- the SPI master by providing stimulus to the inputs and observing the outputs.
+-- The testbench includes clock generation, reset handling, and various test
+-- scenarios to verify the functionality of the SPI master module under different
+-- conditions.
+--------------------------------------------------------------------------------
+-- Revision History
+-- Date     |       Author      |    Comments
+-- 21-07-26 | Roi López Barata  | First basic version of this testbench.
+-- 23-07-26 | Roi López Barata  | Improved testbench functionality.
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity spi_main_tb is
-end entity spi_main_tb;
+entity spi_master_tb is
+end entity spi_master_tb;
 
-architecture rtl of spi_main_tb is
+architecture rtl of spi_master_tb is
 
     -- Constants.
     constant bits_per_message : integer := 8;
@@ -39,7 +70,7 @@ architecture rtl of spi_main_tb is
 
 begin
 
-    dut : entity work.spi_main
+    dut : entity work.spi_master
         port map
         (
             outbound_buffer_input  => outbound_buffer_input,

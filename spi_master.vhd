@@ -1,8 +1,40 @@
+--------------------------------------------------------------------------------
+-- File : spi_master_tb.vhd
+-- Project : SPI implementation in VHDL
+-- Creation : 21-07-2026
+-- Limitations : none
+-- Errors : none known
+-- Simulator : NVC
+-- Synthesizer : -
+-- Platform : MacOS
+-- Targets : Simulation
+---------------------------------------
+-- Authors : Roi López Barata
+-- Organization : -
+-- Email : r.lopezbarata@gmail.com
+--------------------------------------------------------------------------------
+-- Copyright Notice
+-- This work is licensed under the MIT License.
+--------------------------------------------------------------------------------
+-- Function description
+-- This is an implementation of an SPI master module. It handles the transmission
+-- and reception of data through the SPI interface, managing the clock signal,
+-- chip select, and data lines (MOSI and MISO). The module supports different SPI
+-- modes based on the clock polarity (CPOL) and clock phase (CPHA) settings. It
+-- also provides the ability to load data into outbound and inbound buffers,
+-- allowing for flexible data handling during SPI communication.
+--------------------------------------------------------------------------------
+-- Revision History
+-- Date     |       Author      |    Comments
+-- 21-07-26 | Roi López Barata  | First unfinished version of the SPI master module.
+-- 23-07-26 | Roi López Barata  | Finished the first version of the SPI master module.
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity spi_main is
+entity spi_master is
 
     generic (
         bits_per_message   : integer := 8;
@@ -38,8 +70,8 @@ entity spi_main is
         temporary_miso_port    : out std_logic
     );
 
-end entity spi_main;
-architecture beh of spi_main is
+end entity spi_master;
+architecture beh of spi_master is
     type state_t is (IDLE, TRANSMIT, FINISH_TRANSMISSION);
     signal state                       : state_t;
     signal sclk_rising_edge            : std_logic;

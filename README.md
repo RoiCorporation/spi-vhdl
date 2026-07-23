@@ -44,7 +44,7 @@ which gtkwave
 ## 🚀 Running a simulation and visualizing the waveform
 To run a simulation and generate the corresponding waveform, execute this command:
 ```
-nvc -a spi_main.vhd spi_main_tb.vhd -e spi_main_tb -r spi_main_tb --wave=waves.vcd
+nvc -a spi_master.vhd spi_master_tb.vhd -e spi_master_tb -r spi_master_tb --wave=waves.vcd
 ```
 
 To visualize the waveform file of the simulation run, open the file with GTKWave:
