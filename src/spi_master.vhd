@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
--- File : spi_master_tb.vhd
+-- File : spi_master.vhd
 -- Project : SPI implementation in VHDL
 -- Creation : 21-07-2026
 -- Limitations : none
@@ -28,6 +28,7 @@
 -- Date     |       Author      |    Comments
 -- 21-07-26 | Roi López Barata  | First unfinished version of the SPI master module.
 -- 23-07-26 | Roi López Barata  | Finished the first version of the SPI master module.
+-- 25-07-26 | Roi López Barata  | Fixed typo in the file header.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -71,6 +72,7 @@ entity spi_master is
     );
 
 end entity spi_master;
+
 architecture beh of spi_master is
     type state_t is (IDLE, TRANSMIT, FINISH_TRANSMISSION);
     signal state                       : state_t;

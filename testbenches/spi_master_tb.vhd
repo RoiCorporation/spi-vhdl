@@ -27,6 +27,7 @@
 -- Date     |       Author      |    Comments
 -- 21-07-26 | Roi López Barata  | First basic version of this testbench.
 -- 23-07-26 | Roi López Barata  | Improved testbench functionality.
+-- 25-07-26 | Roi López Barata  | Added separation newline.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -104,6 +105,7 @@ begin
         end loop;
         wait;
     end process p_clk;
+
     -- Stimulus process.
     stim_proc : process
     begin
