@@ -29,6 +29,7 @@
 -- 21-07-26 | Roi López Barata  | First unfinished version of the SPI master module.
 -- 23-07-26 | Roi López Barata  | Finished the first version of the SPI master module.
 -- 25-07-26 | Roi López Barata  | Fixed typo in the file header.
+-- 27-07-26 | Roi López Barata  | Fixed order of the entering MISO and MOSI data in the inbound and outbound buffers.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -160,9 +161,9 @@ begin
 
                             if cpol = '0' then
                                 if cpha = '0' then -- SPI mode 0
-                                    temporary_mosi              <= outbound_buffer_output_data(0);
+                                    mosi                        <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
-                                    inbound_buffer_output_data  <= inbound_buffer_output_data(bits_per_message - 2 downto 0) & miso;
+                                    inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
 
                                 elsif cpha = '1' then -- SPI mode 1
                                     mosi           <= outbound_buffer_output_data(0);
@@ -177,7 +178,7 @@ begin
 
                                 elsif cpha = '1' then -- SPI mode 3
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
-                                    inbound_buffer_output_data  <= inbound_buffer_output_data(bits_per_message - 2 downto 0) & miso;
+                                    inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     current_bits_processed := current_bits_processed + 1;
                                 end if;
 
@@ -188,14 +189,13 @@ begin
 
                             if cpol = '0' then
                                 if cpha = '0' then -- SPI mode 0
-                                    mosi           <= temporary_mosi;
                                     temporary_miso <= miso;
                                     current_bits_processed := current_bits_processed + 1;
 
                                 elsif cpha = '1' then -- SPI mode 1
                                     temporary_mosi              <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
-                                    inbound_buffer_output_data  <= inbound_buffer_output_data(bits_per_message - 2 downto 0) & miso;
+                                    inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     current_bits_processed := current_bits_processed + 1;
                                 end if;
 
@@ -203,7 +203,7 @@ begin
                                 if cpha = '0' then -- SPI mode 2
                                     temporary_mosi              <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
-                                    inbound_buffer_output_data  <= inbound_buffer_output_data(bits_per_message - 2 downto 0) & miso;
+                                    inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
 
                                 elsif cpha = '1' then -- SPI mode 3
                                     mosi           <= outbound_buffer_output_data(0);
