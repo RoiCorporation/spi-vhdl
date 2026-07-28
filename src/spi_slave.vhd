@@ -40,15 +40,14 @@ entity spi_slave is
     port (
 
         -- Main ports.
-        rst            : in std_logic;
-        clk            : in std_logic;
-        sclk           : in std_logic;
-        cpol           : in std_logic;
-        cpha           : in std_logic;
-        cs             : in std_logic;
-        mosi           : in std_logic;
-        miso           : out std_logic := '0';
-        bit_count_port : out natural;
+        rst  : in std_logic;
+        clk  : in std_logic;
+        sclk : in std_logic;
+        cpol : in std_logic;
+        cpha : in std_logic;
+        cs   : in std_logic;
+        mosi : in std_logic;
+        miso : out std_logic := '0';
 
         -- Transmit buffer ports.
         tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0);
@@ -58,16 +57,16 @@ entity spi_slave is
         -- Receive buffer ports.
         rx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0);
         rx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0);
-        rx_buffer_load   : in std_logic;
-        aux_rx_shift_reg : out std_logic_vector(bits_per_message - 1 downto 0) := (others => '0')
+        rx_buffer_load   : in std_logic
     );
 
 end entity spi_slave;
 
 architecture beh of spi_slave is
     signal entered_idle_flag     : std_logic                                       := '1';
-    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := "10101010";
-    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0);
+    signal aux_rx_shift_reg      : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
+    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
+    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
 begin
 
     tx_buffer_output <= tx_buffer_output_data;
@@ -104,7 +103,6 @@ begin
     communication_proc : process (sclk, cs)
         variable bit_count : natural := 0;
     begin
-        bit_count_port <= bit_count;
 
         if cs = '0' and bit_count = 0 then
             miso <= tx_buffer_output_data(0);

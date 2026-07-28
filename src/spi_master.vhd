@@ -48,18 +48,15 @@ entity spi_master is
     port (
 
         -- Main ports.
-        rst                    : in std_logic;
-        clk                    : in std_logic;
-        sclk                   : out std_logic := '0';
-        cpol                   : in std_logic;
-        cpha                   : in std_logic;
-        start_transmission     : in std_logic;
-        cs                     : out std_logic := '1';
-        mosi                   : out std_logic := '0';
-        miso                   : in std_logic;
-        last_shift_bit         : out std_logic := '0';
-        sclk_rising_edge_port  : out std_logic;
-        sclk_falling_edge_port : out std_logic;
+        rst                : in std_logic;
+        clk                : in std_logic;
+        sclk               : out std_logic := '0';
+        cpol               : in std_logic;
+        cpha               : in std_logic;
+        start_transmission : in std_logic;
+        cs                 : out std_logic := '1';
+        mosi               : out std_logic := '0';
+        miso               : in std_logic;
 
         -- Transmit buffer ports.
         tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0);
@@ -77,16 +74,15 @@ end entity spi_master;
 architecture beh of spi_master is
     type state_t is (IDLE, TRANSMIT, FINISH_TRANSMISSION);
     signal state                 : state_t;
-    signal sclk_rising_edge      : std_logic;
-    signal sclk_falling_edge     : std_logic;
-    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0);
-    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0);
+    signal last_shift_bit        : std_logic                                       := '0';
+    signal sclk_rising_edge      : std_logic                                       := '0';
+    signal sclk_falling_edge     : std_logic                                       := '0';
+    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
+    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
 begin
 
-    tx_buffer_output       <= tx_buffer_output_data;
-    rx_buffer_output       <= rx_buffer_output_data;
-    sclk_rising_edge_port  <= sclk_rising_edge;
-    sclk_falling_edge_port <= sclk_falling_edge;
+    tx_buffer_output <= tx_buffer_output_data;
+    rx_buffer_output <= rx_buffer_output_data;
 
     fsm_proc : process (clk)
         variable divider                : integer := 0;

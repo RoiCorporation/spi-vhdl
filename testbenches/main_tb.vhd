@@ -71,30 +71,26 @@ architecture rtl of main_tb is
     signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
     signal slave_rx_buffer_load   : std_logic                                       := '0';
     signal slave_rx_shift_reg     : std_logic_vector(bits_per_message - 1 downto 0);
-    signal bit_count              : natural := 0;
 begin
 
     dut_spi_master : entity work.spi_master
         port map
         (
-            rst                    => rst,
-            clk                    => clk,
-            sclk                   => sclk,
-            cpol                   => cpol,
-            cpha                   => cpha,
-            start_transmission     => start_transmission,
-            cs                     => cs,
-            mosi                   => mosi,
-            miso                   => miso,
-            last_shift_bit         => open,
-            sclk_rising_edge_port  => open,
-            sclk_falling_edge_port => open,
-            tx_buffer_input        => master_tx_buffer_input,
-            tx_buffer_output       => master_tx_buffer_output,
-            tx_buffer_load         => master_tx_buffer_load,
-            rx_buffer_input        => master_rx_buffer_input,
-            rx_buffer_output       => master_rx_buffer_output,
-            rx_buffer_load         => master_rx_buffer_load
+            rst                => rst,
+            clk                => clk,
+            sclk               => sclk,
+            cpol               => cpol,
+            cpha               => cpha,
+            start_transmission => start_transmission,
+            cs                 => cs,
+            mosi               => mosi,
+            miso               => miso,
+            tx_buffer_input    => master_tx_buffer_input,
+            tx_buffer_output   => master_tx_buffer_output,
+            tx_buffer_load     => master_tx_buffer_load,
+            rx_buffer_input    => master_rx_buffer_input,
+            rx_buffer_output   => master_rx_buffer_output,
+            rx_buffer_load     => master_rx_buffer_load
         );
 
     dut_spi_slave : entity work.spi_slave
@@ -108,14 +104,12 @@ begin
             cs               => cs,
             mosi             => mosi,
             miso             => miso,
-            bit_count_port   => bit_count,
             tx_buffer_input  => slave_tx_buffer_input,
             tx_buffer_output => slave_tx_buffer_output,
             tx_buffer_load   => slave_tx_buffer_load,
             rx_buffer_input  => slave_rx_buffer_input,
             rx_buffer_output => slave_rx_buffer_output,
-            rx_buffer_load   => slave_rx_buffer_load,
-            aux_rx_shift_reg => slave_rx_shift_reg
+            rx_buffer_load   => slave_rx_buffer_load
         );
 
     -- Clock process.
