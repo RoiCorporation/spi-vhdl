@@ -4,7 +4,10 @@
 
 
 # SPI implementation in VHDL
-Implementation of the Serial Peripheral Interface (SPI) communication protocol using VHDL.
+Implementation of the Serial Peripheral Interface (SPI) communication protocol
+using VHDL. This repository also contains the necessary documentation for the
+SPI [master](src/master/README.md) and [slave](src/slave/README.md) modules, as
+well as for the simulation [testbench](testbenches/README.md).
 
 
 
