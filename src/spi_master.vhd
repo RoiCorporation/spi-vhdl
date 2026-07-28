@@ -62,14 +62,12 @@ entity spi_master is
         cs                     : out std_logic := '1';
         clk                    : in std_logic;
         sclk                   : out std_logic := '0';
+        rst                    : in std_logic;
         cpol                   : in std_logic;
         cpha                   : in std_logic;
         last_shift_bit         : out std_logic := '0';
-        rst                    : in std_logic;
         sclk_rising_edge_port  : out std_logic;
-        sclk_falling_edge_port : out std_logic;
-        temporary_mosi_port    : out std_logic;
-        temporary_miso_port    : out std_logic
+        sclk_falling_edge_port : out std_logic
     );
 
 end entity spi_master;
@@ -79,8 +77,6 @@ architecture beh of spi_master is
     signal state                       : state_t;
     signal sclk_rising_edge            : std_logic;
     signal sclk_falling_edge           : std_logic;
-    signal temporary_mosi              : std_logic := '0';
-    signal temporary_miso              : std_logic := '0';
     signal outbound_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0);
     signal inbound_buffer_output_data  : std_logic_vector(bits_per_message - 1 downto 0);
 begin
@@ -89,8 +85,6 @@ begin
     inbound_buffer_output  <= inbound_buffer_output_data;
     sclk_rising_edge_port  <= sclk_rising_edge;
     sclk_falling_edge_port <= sclk_falling_edge;
-    temporary_miso_port    <= temporary_miso;
-    temporary_mosi_port    <= temporary_mosi;
 
     fsm_proc : process (clk)
         variable divider                : integer := 0;
@@ -106,17 +100,14 @@ begin
                 current_bits_processed := 0;
                 mosi <= '0';
 
-            else
+                else
                 case state is
                     when IDLE =>
                         cs                <= '1';
                         sclk              <= cpol;
                         mosi              <= '0';
-                        temporary_mosi    <= '0';
-                        temporary_miso    <= '0';
                         sclk_rising_edge  <= '0';
                         sclk_falling_edge <= '0';
-                        temporary_mosi    <= outbound_buffer_output_data(0);
                         current_bits_processed := 0;
                         last_shift_bit <= '0';
 
@@ -155,25 +146,21 @@ begin
                                 sclk_falling_edge <= '0';
                             end if;
                         end if;
-
                         if sclk_rising_edge = '1' and last_shift_bit = '0' then
                             sclk <= '1';
+                            mosi <= outbound_buffer_output_data(0);
 
                             if cpol = '0' then
                                 if cpha = '0' then -- SPI mode 0
-                                    mosi                        <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
 
                                 elsif cpha = '1' then -- SPI mode 1
-                                    mosi           <= outbound_buffer_output_data(0);
-                                    temporary_miso <= miso;
+                                    mosi <= outbound_buffer_output_data(0);
                                 end if;
 
                             elsif cpol = '1' then
                                 if cpha = '0' then -- SPI mode 2
-                                    mosi           <= temporary_mosi;
-                                    temporary_miso <= miso;
                                     current_bits_processed := current_bits_processed + 1;
 
                                 elsif cpha = '1' then -- SPI mode 3
@@ -186,14 +173,14 @@ begin
 
                         elsif sclk_falling_edge = '1' and last_shift_bit = '0' then
                             sclk <= '0';
+                            mosi <= outbound_buffer_output_data(0);
 
                             if cpol = '0' then
                                 if cpha = '0' then -- SPI mode 0
-                                    temporary_miso <= miso;
+                                    mosi <= outbound_buffer_output_data(0);
                                     current_bits_processed := current_bits_processed + 1;
 
                                 elsif cpha = '1' then -- SPI mode 1
-                                    temporary_mosi              <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     current_bits_processed := current_bits_processed + 1;
@@ -201,13 +188,11 @@ begin
 
                             elsif cpol = '1' then
                                 if cpha = '0' then -- SPI mode 2
-                                    temporary_mosi              <= outbound_buffer_output_data(0);
                                     outbound_buffer_output_data <= '0' & outbound_buffer_output_data(bits_per_message - 1 downto 1);
                                     inbound_buffer_output_data  <= miso & inbound_buffer_output_data(bits_per_message - 1 downto 1);
 
                                 elsif cpha = '1' then -- SPI mode 3
-                                    mosi           <= outbound_buffer_output_data(0);
-                                    temporary_miso <= miso;
+                                    mosi <= outbound_buffer_output_data(0);
                                 end if;
 
                             end if;

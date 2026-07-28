@@ -49,28 +49,20 @@ entity spi_slave is
         rx_shift_reg          : out std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
 
         -- Rest of the ports.
-        mosi                : in std_logic;
-        miso                : out std_logic := '0';
-        cs                  : in std_logic;
-        clk                 : in std_logic;
-        sclk                : in std_logic;
-        rst                 : in std_logic;
-        cpol                : in std_logic;
-        cpha                : in std_logic;
-        temporary_mosi_port : out std_logic;
-        temporary_miso_port : out std_logic;
-        tx_buffer_sync_port : out std_logic;
-        rx_buffer_sync_port : out std_logic;
-        bit_count_port      : out natural
+        mosi           : in std_logic;
+        miso           : out std_logic := '0';
+        cs             : in std_logic;
+        clk            : in std_logic;
+        sclk           : in std_logic;
+        rst            : in std_logic;
+        cpol           : in std_logic;
+        cpha           : in std_logic;
+        bit_count_port : out natural
     );
 
 end entity spi_slave;
 
 architecture beh of spi_slave is
-    signal tx_buffer_sync              : std_logic                                       := '0';
-    signal rx_buffer_sync              : std_logic                                       := '0';
-    signal temporary_mosi              : std_logic                                       := '0';
-    signal temporary_miso              : std_logic                                       := '0';
     signal entered_idle_flag           : std_logic                                       := '1';
     signal outbound_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := "10101010";
     signal inbound_buffer_output_data  : std_logic_vector(bits_per_message - 1 downto 0);
@@ -78,10 +70,6 @@ begin
 
     outbound_buffer_output <= outbound_buffer_output_data;
     inbound_buffer_output  <= inbound_buffer_output_data;
-    temporary_miso_port    <= temporary_miso;
-    temporary_mosi_port    <= temporary_mosi;
-    tx_buffer_sync_port    <= tx_buffer_sync;
-    rx_buffer_sync_port    <= rx_buffer_sync;
 
     internal_proc : process (clk)
     begin
@@ -93,7 +81,7 @@ begin
                 outbound_buffer_output_data <= (others => '0');
                 entered_idle_flag           <= '1';
 
-            elsif cs = '1' then
+                elsif cs = '1' then
                 if entered_idle_flag = '0' then
                     inbound_buffer_output_data <= rx_shift_reg;
                     entered_idle_flag          <= '1';
@@ -105,7 +93,7 @@ begin
                     outbound_buffer_output_data <= outbound_buffer_input;
                 end if;
 
-            elsif cs = '0' then
+                elsif cs = '0' then
                 entered_idle_flag <= '0';
             end if;
         end if;
@@ -126,60 +114,51 @@ begin
         end if;
 
         if rising_edge(sclk) then
-
-            if cpol = '0' then
-                if cpha = '0' then -- SPI mode 0
-                    if bit_count < (bits_per_message - 1) then
+            if cs = '0' then
+                if cpol = '0' then
+                    if cpha = '0' then -- SPI mode 0
+                        rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
                         bit_count := bit_count + 1;
-                        -- miso <= outbound_buffer_output_data(bit_count);
-                    end if;
-                    rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
 
-                elsif cpha = '1' then -- SPI mode 1
-                    miso           <= outbound_buffer_output_data(bit_count);
-                    temporary_mosi <= mosi;
-                end if;
-
-            elsif cpol = '1' then
-                if cpha = '0' then -- SPI mode 2
-                    miso           <= temporary_miso;
-                    temporary_mosi <= mosi;
-
-                elsif cpha = '1' then -- SPI mode 3
-                    -- tx_shift_reg <= '0' & tx_shift_reg(bits_per_message - 1 downto 1);
-                    bit_count := bit_count + 1;
-                    rx_shift_reg <= rx_shift_reg(bits_per_message - 2 downto 0) & mosi;
-                end if;
-
-            end if;
-
-        elsif falling_edge(sclk) then
-
-            if cpol = '0' then
-                if cpha = '0' then -- SPI mode 0
-                    if bit_count < (bits_per_message - 1) then
+                        elsif cpha = '1' then -- SPI mode 1
                         miso <= outbound_buffer_output_data(bit_count);
                     end if;
-                    -- bit_count := bit_count + 1;
-                    temporary_mosi <= mosi;
 
-                elsif cpha = '1' then -- SPI mode 1
-                    temporary_miso <= outbound_buffer_output_data(bit_count);
-                    bit_count := bit_count + 1;
-                    rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
+                    elsif cpol = '1' then
+                    if cpha = '0' then -- SPI mode 2
+                        if bit_count < bits_per_message then
+                            miso <= outbound_buffer_output_data(bit_count);
+                        end if;
+
+                        elsif cpha = '1' then -- SPI mode 3
+                        rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
+                        bit_count := bit_count + 1;
+                    end if;
                 end if;
+            end if;
 
-            elsif cpol = '1' then
-                if cpha = '0' then -- SPI mode 2
-                    temporary_miso <= outbound_buffer_output_data(bit_count);
-                    bit_count := bit_count + 1;
-                    rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
+            elsif falling_edge(sclk) then
+            if cs = '0' then
+                if cpol = '0' then
+                    if cpha = '0' then -- SPI mode 0
+                        if bit_count < bits_per_message then
+                            miso <= outbound_buffer_output_data(bit_count);
+                        end if;
 
-                elsif cpha = '1' then -- SPI mode 3
-                    miso           <= outbound_buffer_output_data(bit_count);
-                    temporary_mosi <= mosi;
+                        elsif cpha = '1' then -- SPI mode 1
+                        rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
+                        bit_count := bit_count + 1;
+                    end if;
+
+                    elsif cpol = '1' then
+                    if cpha = '0' then -- SPI mode 2
+                        rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
+                        bit_count := bit_count + 1;
+
+                        elsif cpha = '1' then -- SPI mode 3
+                        miso <= outbound_buffer_output_data(bit_count);
+                    end if;
                 end if;
-
             end if;
         end if;
 

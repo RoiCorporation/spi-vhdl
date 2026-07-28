@@ -45,7 +45,6 @@ architecture rtl of spi_slave_tb is
     signal outbound_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
     signal outbound_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
     signal outbound_buffer_load   : std_logic                                       := '0';
-    signal tx_shift_reg           : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
 
     -- Inbound data buffer ports.
     signal inbound_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
@@ -54,18 +53,14 @@ architecture rtl of spi_slave_tb is
     signal rx_shift_reg          : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
 
     -- Rest of the ports.
-    signal mosi                : std_logic := '0';
-    signal miso                : std_logic := '0';
-    signal cs                  : std_logic := '1';
-    signal clk                 : std_logic := '0';
-    signal sclk                : std_logic := '0';
-    signal cpol                : std_logic := '0';
-    signal cpha                : std_logic := '0';
-    signal temporary_miso_port : std_logic;
-    signal temporary_mosi_port : std_logic;
-    signal tx_buffer_sync      : std_logic;
-    signal rx_buffer_sync      : std_logic;
-    signal ack_syncs           : std_logic;
+    signal mosi : std_logic := '0';
+    signal miso : std_logic := '0';
+    signal cs   : std_logic := '1';
+    signal clk  : std_logic := '0';
+    signal sclk : std_logic := '0';
+    signal rst  : std_logic := '0';
+    signal cpol : std_logic := '0';
+    signal cpha : std_logic := '0';
 
 begin
 
@@ -75,7 +70,6 @@ begin
             outbound_buffer_input  => outbound_buffer_input,
             outbound_buffer_output => outbound_buffer_output,
             outbound_buffer_load   => outbound_buffer_load,
-            tx_shift_reg           => tx_shift_reg,
             inbound_buffer_input   => inbound_buffer_input,
             inbound_buffer_output  => inbound_buffer_output,
             inbound_buffer_load    => inbound_buffer_load,
@@ -85,13 +79,9 @@ begin
             cs                     => cs,
             clk                    => clk,
             sclk                   => sclk,
+            rst                    => rst,
             cpol                   => cpol,
-            cpha                   => cpha,
-            temporary_miso_port    => temporary_miso_port,
-            temporary_mosi_port    => temporary_mosi_port,
-            tx_buffer_sync_port    => tx_buffer_sync,
-            rx_buffer_sync_port    => rx_buffer_sync,
-            ack_syncs_port         => ack_syncs
+            cpha                   => cpha
         );
 
     -- Clock process.

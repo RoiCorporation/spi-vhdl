@@ -54,20 +54,18 @@ architecture rtl of spi_master_tb is
     signal inbound_buffer_load   : std_logic                                       := '0';
 
     -- Rest of the ports.
-    signal start_transmission  : std_logic := '0';
-    signal mosi                : std_logic := '0';
-    signal miso                : std_logic := '0';
-    signal cs                  : std_logic := '0';
-    signal clk                 : std_logic := '0';
-    signal sclk                : std_logic;
-    signal cpol                : std_logic := '0';
-    signal cpha                : std_logic := '0';
-    signal rst                 : std_logic := '0';
-    signal sclk_rising_edge    : std_logic;
-    signal sclk_falling_edge   : std_logic;
-    signal last_shift_bit      : std_logic;
-    signal temporary_miso_port : std_logic;
-    signal temporary_mosi_port : std_logic;
+    signal start_transmission : std_logic := '0';
+    signal mosi               : std_logic := '0';
+    signal miso               : std_logic := '0';
+    signal cs                 : std_logic := '0';
+    signal clk                : std_logic := '0';
+    signal sclk               : std_logic;
+    signal rst                : std_logic := '0';
+    signal cpol               : std_logic := '0';
+    signal cpha               : std_logic := '0';
+    signal sclk_rising_edge   : std_logic;
+    signal sclk_falling_edge  : std_logic;
+    signal last_shift_bit     : std_logic;
 
 begin
 
@@ -86,14 +84,12 @@ begin
             cs                     => cs,
             clk                    => clk,
             sclk                   => sclk,
+            rst                    => rst,
             cpol                   => cpol,
             cpha                   => cpha,
-            rst                    => rst,
             sclk_rising_edge_port  => sclk_rising_edge,
             sclk_falling_edge_port => sclk_falling_edge,
-            last_shift_bit         => last_shift_bit,
-            temporary_miso_port    => temporary_miso_port,
-            temporary_mosi_port    => temporary_mosi_port
+            last_shift_bit         => last_shift_bit
         );
 
     -- Clock process.
