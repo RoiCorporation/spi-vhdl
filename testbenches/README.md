@@ -60,5 +60,6 @@ received according to the specified SPI modes (CPOL and CPHA settings).
 ## Instantiations
 
 - dut_spi_master: work.spi_master
-  -  Instance of the SPI master module. It connects the testbench signals to the corresponding ports of the SPI master entity.- dut_spi_slave: work.spi_slave
+  -  Instance of the SPI master module. It connects the testbench signals to the corresponding ports of the SPI master entity.
+- dut_spi_slave: work.spi_slave
   -  Instance of the SPI slave module. It connects the testbench signals to the corresponding ports of the SPI slave entity.
