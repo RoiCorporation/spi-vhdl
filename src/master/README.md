@@ -40,12 +40,12 @@ flexible data handling during SPI communication.
 | cs                 | out       | std_logic                                       | Chip select signal.                                                               |
 | mosi               | out       | std_logic                                       | Master Out Slave In signal.                                                       |
 | miso               | in        | std_logic                                       | Master In Slave Out signal.                                                       |
-| tx_buffer_input    | in        | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer input.                                                        |
-| tx_buffer_output   | out       | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer output.                                                       |
-| tx_buffer_load     | in        | std_logic                                       | Signal to load data into the transmission buffer.                                 |
-| rx_buffer_input    | in        | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer input.                                                           |
-| rx_buffer_output   | out       | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer output.                                                          |
-| rx_buffer_load     | in        | std_logic                                       | Signal to load data into the reception buffer.                                    |
+| tx_buffer_input    | in        | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer input.                                                            |
+| tx_buffer_output   | out       | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer output.                                                           |
+| tx_buffer_load     | in        | std_logic                                       | Signal to load data into the transmit buffer.                                     |
+| rx_buffer_input    | in        | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer input.                                                             |
+| rx_buffer_output   | out       | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer output.                                                            |
+| rx_buffer_load     | in        | std_logic                                       | Signal to load data into the receive buffer.                                      |
 
 ## Signals
 
@@ -55,8 +55,8 @@ flexible data handling during SPI communication.
 | last_shift_bit        | std_logic                                       | Flag to indicate if the last bit of the current transmission has been processed. |
 | sclk_rising_edge      | std_logic                                       | Rising edge of SPI clock (sclk).                                                 |
 | sclk_falling_edge     | std_logic                                       | Falling edge of SPI clock (sclk).                                                |
-| tx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the transmission buffer.                                        |
-| rx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the reception buffer.                                           |
+| tx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the transmit buffer.                                            |
+| rx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the receive buffer.                                             |
 
 ## Enums
 

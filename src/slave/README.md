@@ -36,12 +36,12 @@ receive buffers for data exchange with the master device.
 | cs               | in        | std_logic                                       | Chip select signal.                                        |
 | mosi             | in        | std_logic                                       | Master Out Slave In signal.                                |
 | miso             | out       | std_logic                                       | Master In Slave Out signal.                                |
-| tx_buffer_input  | in        | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer input.                                 |
-| tx_buffer_output | out       | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer output.                                |
-| tx_buffer_load   | in        | std_logic                                       | Signal to load data into the transmission buffer.          |
-| rx_buffer_input  | in        | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer input.                                    |
-| rx_buffer_output | out       | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer output.                                   |
-| rx_buffer_load   | in        | std_logic                                       | Signal to load data into the reception buffer.             |
+| tx_buffer_input  | in        | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer input.                                     |
+| tx_buffer_output | out       | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer output.                                    |
+| tx_buffer_load   | in        | std_logic                                       | Signal to load data into the transmit buffer.              |
+| rx_buffer_input  | in        | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer input.                                      |
+| rx_buffer_output | out       | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer output.                                     |
+| rx_buffer_load   | in        | std_logic                                       | Signal to load data into the receive buffer.               |
 
 ## Signals
 
@@ -49,8 +49,8 @@ receive buffers for data exchange with the master device.
 | --------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
 | entered_idle_flag     | std_logic                                       | Flag to indicate whether the slave has entered the idle state. |
 | aux_rx_shift_reg      | std_logic_vector(bits_per_message - 1 downto 0) | Auxiliary shift register for receiving data.                   |
-| tx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the transmission buffer.                      |
-| rx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the reception buffer.                         |
+| tx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the transmit buffer.                          |
+| rx_buffer_output_data | std_logic_vector(bits_per_message - 1 downto 0) | Data output from the receive buffer.                           |
 
 ## Processes
 - internal_proc: ( clk )

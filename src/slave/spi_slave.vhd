@@ -58,14 +58,14 @@ entity spi_slave is
         miso : out std_logic := '0'; --! Master In Slave Out signal.
 
         -- Transmit buffer ports.
-        tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Transmission buffer input.
-        tx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Transmission buffer output.
-        tx_buffer_load   : in std_logic; --! Signal to load data into the transmission buffer.
+        tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Transmit buffer input.
+        tx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Transmit buffer output.
+        tx_buffer_load   : in std_logic; --! Signal to load data into the transmit buffer.
 
         -- Receive buffer ports.
-        rx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Reception buffer input.
-        rx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Reception buffer output.
-        rx_buffer_load   : in std_logic --! Signal to load data into the reception buffer.
+        rx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Receive buffer input.
+        rx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Receive buffer output.
+        rx_buffer_load   : in std_logic --! Signal to load data into the receive buffer.
     );
 
 end entity spi_slave;
@@ -73,8 +73,8 @@ end entity spi_slave;
 architecture beh of spi_slave is
     signal entered_idle_flag     : std_logic                                       := '1'; --! Flag to indicate whether the slave has entered the idle state.
     signal aux_rx_shift_reg      : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Auxiliary shift register for receiving data.
-    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the transmission buffer.
-    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the reception buffer.
+    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the transmit buffer.
+    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the receive buffer.
 begin
 
     tx_buffer_output <= tx_buffer_output_data;

@@ -62,14 +62,14 @@ entity spi_master is
         miso               : in std_logic; --! Master In Slave Out signal.
 
         -- Transmit buffer ports.
-        tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Transmission buffer input.
-        tx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Transmission buffer output.
-        tx_buffer_load   : in std_logic; --! Signal to load data into the transmission buffer.
+        tx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Transmit buffer input.
+        tx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Transmit buffer output.
+        tx_buffer_load   : in std_logic; --! Signal to load data into the transmit buffer.
 
         -- Receive buffer ports.
-        rx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Reception buffer input.
-        rx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Reception buffer output.
-        rx_buffer_load   : in std_logic --! Signal to load data into the reception buffer.
+        rx_buffer_input  : in std_logic_vector(bits_per_message - 1 downto 0); --! Receive buffer input.
+        rx_buffer_output : out std_logic_vector(bits_per_message - 1 downto 0); --! Receive buffer output.
+        rx_buffer_load   : in std_logic --! Signal to load data into the receive buffer.
     );
 
 end entity spi_master;
@@ -84,8 +84,8 @@ architecture beh of spi_master is
     signal last_shift_bit        : std_logic                                       := '0'; --! Flag to indicate if the last bit of the current transmission has been processed.
     signal sclk_rising_edge      : std_logic                                       := '0'; --! Rising edge of SPI clock (sclk).
     signal sclk_falling_edge     : std_logic                                       := '0'; --! Falling edge of SPI clock (sclk).
-    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the transmission buffer.
-    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the reception buffer.
+    signal tx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the transmit buffer.
+    signal rx_buffer_output_data : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Data output from the receive buffer.
 begin
 
     tx_buffer_output <= tx_buffer_output_data;

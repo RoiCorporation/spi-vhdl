@@ -29,18 +29,18 @@ received according to the specified SPI modes (CPOL and CPHA settings).
 | cs                      | std_logic                                       | Chip select signal.                                        |
 | mosi                    | std_logic                                       | Master Out Slave In signal.                                |
 | miso                    | std_logic                                       | Master In Slave Out signal.                                |
-| master_tx_buffer_input  | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer input for the SPI master module.       |
-| master_tx_buffer_output | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer output for the SPI master module.      |
-| master_tx_buffer_load   | std_logic                                       | Load signal for the SPI master's transmission buffer.      |
-| master_rx_buffer_input  | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer input for the SPI master module.          |
-| master_rx_buffer_output | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer output for the SPI master module.         |
-| master_rx_buffer_load   | std_logic                                       | Load signal for the SPI master's reception buffer.         |
-| slave_tx_buffer_input   | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer input for the SPI slave module.        |
-| slave_tx_buffer_output  | std_logic_vector(bits_per_message - 1 downto 0) | Transmission buffer output for the SPI slave module.       |
-| slave_tx_buffer_load    | std_logic                                       | Load signal for the SPI slave's transmission buffer.       |
-| slave_rx_buffer_input   | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer input for the SPI slave module.           |
-| slave_rx_buffer_output  | std_logic_vector(bits_per_message - 1 downto 0) | Reception buffer output for the SPI slave module.          |
-| slave_rx_buffer_load    | std_logic                                       | Load signal for the SPI slave's reception buffer.          |
+| master_tx_buffer_input  | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer input for the SPI master module.           |
+| master_tx_buffer_output | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer output for the SPI master module.          |
+| master_tx_buffer_load   | std_logic                                       | Load signal for the SPI master's transmit buffer.          |
+| master_rx_buffer_input  | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer input for the SPI master module.            |
+| master_rx_buffer_output | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer output for the SPI master module.           |
+| master_rx_buffer_load   | std_logic                                       | Load signal for the SPI master's receive buffer.           |
+| slave_tx_buffer_input   | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer input for the SPI slave module.            |
+| slave_tx_buffer_output  | std_logic_vector(bits_per_message - 1 downto 0) | Transmit buffer output for the SPI slave module.           |
+| slave_tx_buffer_load    | std_logic                                       | Load signal for the SPI slave's transmit buffer.           |
+| slave_rx_buffer_input   | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer input for the SPI slave module.             |
+| slave_rx_buffer_output  | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer output for the SPI slave module.            |
+| slave_rx_buffer_load    | std_logic                                       | Load signal for the SPI slave's receive buffer.            |
 | slave_rx_shift_reg      | std_logic_vector(bits_per_message - 1 downto 0) |                                                            |
 
 ## Constants

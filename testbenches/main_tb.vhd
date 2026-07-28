@@ -60,20 +60,20 @@ architecture rtl of main_tb is
     signal miso               : std_logic := '0'; --! Master In Slave Out signal.
 
     -- Master module ports.
-    signal master_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer input for the SPI master module.
-    signal master_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer output for the SPI master module.
-    signal master_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's transmission buffer.
-    signal master_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer input for the SPI master module.
-    signal master_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer output for the SPI master module.
-    signal master_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's reception buffer.
+    signal master_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmit buffer input for the SPI master module.
+    signal master_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmit buffer output for the SPI master module.
+    signal master_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's transmit buffer.
+    signal master_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer input for the SPI master module.
+    signal master_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer output for the SPI master module.
+    signal master_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's receive buffer.
 
     -- Slave module ports.
-    signal slave_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer input for the SPI slave module.
-    signal slave_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer output for the SPI slave module.
-    signal slave_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's transmission buffer.
-    signal slave_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer input for the SPI slave module.
-    signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer output for the SPI slave module.
-    signal slave_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's reception buffer.
+    signal slave_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmit buffer input for the SPI slave module.
+    signal slave_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmit buffer output for the SPI slave module.
+    signal slave_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's transmit buffer.
+    signal slave_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer input for the SPI slave module.
+    signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer output for the SPI slave module.
+    signal slave_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's receive buffer.
     signal slave_rx_shift_reg     : std_logic_vector(bits_per_message - 1 downto 0); --! Auxiliary shift register for receiving data in the SPI slave module.
 begin
 
@@ -139,7 +139,7 @@ begin
 
         -- ---------------------------------------------------------------------
         -- Test suite 1: testing that the master and slave exchange the information
-        -- stored in their transmission buffers after an SPI transmission for each
+        -- stored in their transmit buffers after an SPI transmission for each
         -- of the 4 modes.
 
         -- ---------------------------------------------------------------------
