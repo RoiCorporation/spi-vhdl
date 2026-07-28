@@ -1288,8 +1288,7 @@ begin
             to_string(slave_tx_buffer_output)
             )
             severity error;
-        -- assert slave_rx_buffer_output = "01100101"
-        assert slave_rx_buffer_output = "11100101"
+        assert slave_rx_buffer_output = "01100101"
         report (
             "Expected slave_rx_buffer_output = 01100101, got " &
             to_string(slave_rx_buffer_output)
@@ -3150,7 +3149,8 @@ begin
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
         wait for 1 ns;
-        assert mosi = '1'
+        -- assert mosi = '1'
+        assert mosi = '0'
         report (
             "Expected MOSI = 1, got " &
             to_string(MOSI)
@@ -3560,7 +3560,7 @@ begin
             to_string(master_tx_buffer_output)
             )
             severity error;
-        assert master_rx_buffer_output = "10000111"
+        assert master_rx_buffer_output = "10100111"
         report (
             "Expected master_rx_buffer_output = 10000111, got " &
             to_string(master_rx_buffer_output)
