@@ -9,6 +9,8 @@
 - **Copyright:**  This work is licensed under the MIT License.
 - **Brief:**  Testbench for the SPI master and slave modules developed in this project.
 
+## Diagram
+![Diagram](main_tb.svg "Diagram")
 ## Description
 
 This is a testbench for the SPI master and slave modules developed in this
@@ -62,4 +64,5 @@ received according to the specified SPI modes (CPOL and CPHA settings).
 
 - dut_spi_master: work.spi_master
   -  Instance of the SPI master module. It connects the testbench signals to the corresponding ports of the SPI master entity.- dut_spi_slave: work.spi_slave
+- dut_spi_slave: work.spi_slave
   -  Instance of the SPI slave module. It connects the testbench signals to the corresponding ports of the SPI slave entity.
