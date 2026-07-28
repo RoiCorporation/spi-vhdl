@@ -41,7 +41,7 @@ received according to the specified SPI modes (CPOL and CPHA settings).
 | slave_rx_buffer_input   | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer input for the SPI slave module.             |
 | slave_rx_buffer_output  | std_logic_vector(bits_per_message - 1 downto 0) | Receive buffer output for the SPI slave module.            |
 | slave_rx_buffer_load    | std_logic                                       | Load signal for the SPI slave's receive buffer.            |
-| slave_rx_shift_reg      | std_logic_vector(bits_per_message - 1 downto 0) |                                                            |
+| slave_rx_shift_reg      | std_logic_vector(bits_per_message - 1 downto 0) | Auxiliary shift register for receiving data in the SPI slave module.                                                            |
 
 ## Constants
 
