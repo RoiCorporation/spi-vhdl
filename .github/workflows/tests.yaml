@@ -1,0 +1,38 @@
+name: SPI implementation tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: SPI implementation tests
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install NVC
+        uses: nickg/setup-nvc@v1
+        with:
+          version: latest
+
+      - name: 🧪 Run the testbench to verify the SPI master and slave implementations
+        shell: bash
+        run: |
+          set -euo pipefail
+          nvc \
+            -a \
+            src/master/spi_master.vhd \
+            src/slave/spi_slave.vhd \
+            testbenches/main_tb.vhd \
+            -e main_tb \
+            -r main_tb \
+            --wave=waves.vcd \
+            --exit-severity=error || {
+              echo "❌ Simulation test cases failed"
+              rm -rf work
+              exit 1
+            }
+          echo "✅ All tests passed!"
