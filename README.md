@@ -1,3 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)&emsp;[![SPI implementation tests](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml/badge.svg)](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml)
+
+
+
+
 # SPI implementation in VHDL
 Implementation of the Serial Peripheral Interface (SPI) communication protocol using VHDL.
 
