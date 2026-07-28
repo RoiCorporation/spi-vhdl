@@ -3,7 +3,7 @@
 --! @file spi_master.vhd
 --! @author Roi (r.lopezbarata@gmail.com)
 --! @version 1.0
---! @date 21-07-2026
+--! @date 28-07-2026
 --! @copyright This work is licensed under the MIT License.
 --! @brief Implementation of an SPI master module in VHDL.
 --------------------------------------------------------------------------------
@@ -91,7 +91,9 @@ begin
     tx_buffer_output <= tx_buffer_output_data;
     rx_buffer_output <= rx_buffer_output_data;
 
-    --! Implements the SPI master state machine, generating SCLK, controlling CS, and shifting data between the tx/rx buffers and the SPI data lines according to the selected CPOL/CPHA mode.
+    --! Implements the SPI master state machine, generating SCLK, controlling CS
+    --! and shifting data between the tx/rx buffers and the SPI data lines according
+    --! to the selected CPOL/CPHA configuration.
     fsm_proc : process (clk)
         variable divider                : integer := 0;
         variable current_bits_processed : integer := 0;

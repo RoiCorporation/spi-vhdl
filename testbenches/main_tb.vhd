@@ -1,78 +1,84 @@
 --------------------------------------------------------------------------------
--- File : main_tb.vhd
--- Project : SPI implementation in VHDL
--- Creation : 25-07-2026
--- Limitations : none
--- Errors : none known
--- Simulator : NVC
--- Synthesizer : -
--- Platform : MacOS
--- Targets : Simulation
----------------------------------------
--- Authors : Roi López Barata
--- Organization : -
--- Email : r.lopezbarata@gmail.com
+--! @title VHDL testbench for SPI master and slave modules
+--! @file main_tb.vhd
+--! @author Roi (r.lopezbarata@gmail.com)
+--! @version 1.0
+--! @date 28-07-2026
+--! @copyright This work is licensed under the MIT License.
+--! @brief Testbench for the SPI master and slave modules developed in this project.
 --------------------------------------------------------------------------------
--- Copyright Notice
--- This work is licensed under the MIT License.
---------------------------------------------------------------------------------
--- Function description
--- This is a testbench for the SPI implementation in VHDL. It instantiates both
--- the SPI master and SPI slave modules, allowing for comprehensive and extensive
--- testing of the SPI communication between the master and slave entities. The
--- testbench coordinates the simulation of both modules, providing a complete
--- environment for verifying the functionality of the SPI system.
---------------------------------------------------------------------------------
--- Revision History
--- Date     |       Author      |    Comments
--- 27-07-26 | Roi López Barata  | First basic version of this testbench.
--- 28-07-26 | Roi López Barata  | Renamed "outbound_" and "inbound_" signals to
---          |                   | "tx_" and "rx_" respectively. Also renamed the
---          |                   | file and entity names.
+
+-- MIT License
+
+-- Copyright (c) 2026 Roi Lopez Barata
+
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
 --------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! This is a testbench for the SPI master and slave modules developed in this
+--! project. It tests the functionality of the SPI communication between the
+--! master and slave devices, verifying that data is correctly transmitted and
+--! received according to the specified SPI modes (CPOL and CPHA settings).
 entity main_tb is
 end entity main_tb;
 
 architecture rtl of main_tb is
 
     -- Constants.
-    constant bits_per_message : integer := 8;
-    constant clk_period       : time    := 6 fs;
+    constant bits_per_message : integer := 8; --! Bits exchanged in each SPI transmission.
+    constant clk_period       : time    := 6 ns; --! Clock period for the testbench clock signal.
 
     -- Common ports.
-    signal rst  : std_logic := '0';
-    signal clk  : std_logic := '0';
-    signal sclk : std_logic := '0';
-    signal cpol : std_logic := '0';
-    signal cpha : std_logic := '0';
-    signal cs   : std_logic := '1';
-    signal mosi : std_logic := '0';
-    signal miso : std_logic := '0';
+    signal rst                : std_logic := '0'; --! Synchronous reset to initialize both modules.
+    signal clk                : std_logic := '0'; --! Internal clock signal for both modules.
+    signal sclk               : std_logic := '0'; --! SPI clock signal.
+    signal cpol               : std_logic := '0'; --! Clock polarity setting for the SPI communication (0 or 1).
+    signal cpha               : std_logic := '0'; --! Clock phase setting for the SPI communication (0 or 1).
+    signal start_transmission : std_logic := '0'; --! Signal to initiate an SPI transmission.
+    signal cs                 : std_logic := '1'; --! Chip select signal.
+    signal mosi               : std_logic := '0'; --! Master Out Slave In signal.
+    signal miso               : std_logic := '0'; --! Master In Slave Out signal.
 
     -- Master module ports.
-    signal master_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal master_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal master_tx_buffer_load   : std_logic                                       := '0';
-    signal master_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal master_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal master_rx_buffer_load   : std_logic                                       := '0';
-    signal start_transmission      : std_logic                                       := '0';
+    signal master_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer input for the SPI master module.
+    signal master_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer output for the SPI master module.
+    signal master_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's transmission buffer.
+    signal master_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer input for the SPI master module.
+    signal master_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer output for the SPI master module.
+    signal master_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI master's reception buffer.
 
     -- Slave module ports.
-    signal slave_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal slave_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal slave_tx_buffer_load   : std_logic                                       := '0';
-    signal slave_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0');
-    signal slave_rx_buffer_load   : std_logic                                       := '0';
-    signal slave_rx_shift_reg     : std_logic_vector(bits_per_message - 1 downto 0);
+    signal slave_tx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer input for the SPI slave module.
+    signal slave_tx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Transmission buffer output for the SPI slave module.
+    signal slave_tx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's transmission buffer.
+    signal slave_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer input for the SPI slave module.
+    signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Reception buffer output for the SPI slave module.
+    signal slave_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's reception buffer.
+    signal slave_rx_shift_reg     : std_logic_vector(bits_per_message - 1 downto 0); --! Auxiliary shift register for receiving data in the SPI slave module.
 begin
 
+    --! Instance of the SPI master module. It connects the testbench signals to
+    --! the corresponding ports of the SPI master entity.
     dut_spi_master : entity work.spi_master
         port map
         (
@@ -93,6 +99,8 @@ begin
             rx_buffer_load     => master_rx_buffer_load
         );
 
+    --! Instance of the SPI slave module. It connects the testbench signals to
+    --! the corresponding ports of the SPI slave entity.
     dut_spi_slave : entity work.spi_slave
         port map
         (
@@ -112,7 +120,8 @@ begin
             rx_buffer_load   => slave_rx_buffer_load
         );
 
-    -- Clock process.
+    --! Process to generate the clock signal for the testbench. It toggles the
+    --! clock every half period for a total of 30,000 cycles.
     p_clk : process
     begin
         for i in 1 to 30000 loop
@@ -122,6 +131,9 @@ begin
         wait;
     end process p_clk;
 
+    --! Process to generate stimulus signals for the testbench and verify the
+    --! expected behavior of the SPI master and slave modules. It tests various
+    --! SPI modes and checks that data is correctly transmitted and received.
     stim_proc : process
     begin
 
@@ -137,10 +149,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -169,10 +181,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11011110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00011000";
@@ -182,7 +194,7 @@ begin
         slave_rx_buffer_input  <= "11000010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "11011110"
@@ -218,15 +230,15 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -302,10 +314,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -334,10 +346,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10101100";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00100001";
@@ -347,7 +359,7 @@ begin
         slave_rx_buffer_input  <= "00110111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "10101100"
@@ -383,15 +395,15 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -467,10 +479,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -499,10 +511,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10101010";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00000001";
@@ -512,7 +524,7 @@ begin
         slave_rx_buffer_input  <= "10000010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "10101010"
@@ -548,15 +560,15 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -632,10 +644,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -664,10 +676,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00001111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10111101";
@@ -677,7 +689,7 @@ begin
         slave_rx_buffer_input  <= "10010110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "00001111"
@@ -713,15 +725,15 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -804,10 +816,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -836,10 +848,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01100101";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10111111";
@@ -849,7 +861,7 @@ begin
         slave_rx_buffer_input  <= "01010000";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "01100101"
@@ -885,17 +897,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00110010"
         report (
             "Expected master_tx_buffer_output = 00110010, got " &
@@ -923,7 +935,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -940,7 +952,7 @@ begin
         -- Bit 1
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00011001"
         report (
             "Expected master_tx_buffer_output = 00011001, got " &
@@ -968,7 +980,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -985,7 +997,7 @@ begin
         -- Bit 2
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001100"
         report (
             "Expected master_tx_buffer_output = 00001100, got " &
@@ -1013,7 +1025,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1030,7 +1042,7 @@ begin
         -- Bit 3
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000110"
         report (
             "Expected master_tx_buffer_output = 00000110, got " &
@@ -1058,7 +1070,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1075,7 +1087,7 @@ begin
         -- Bit 4
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000011"
         report (
             "Expected master_tx_buffer_output = 00000011, got " &
@@ -1103,7 +1115,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -1120,7 +1132,7 @@ begin
         -- Bit 5
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -1148,7 +1160,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -1165,7 +1177,7 @@ begin
         -- Bit 6
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -1193,7 +1205,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1210,7 +1222,7 @@ begin
         -- Bit 7
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -1238,7 +1250,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1254,7 +1266,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -1316,7 +1328,7 @@ begin
         -- Second consecutive transmission with SPI mode 0.
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11100000";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01001011";
@@ -1326,7 +1338,7 @@ begin
         slave_rx_buffer_input  <= "00001010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "11100000"
@@ -1362,17 +1374,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "01110000"
         report (
             "Expected master_tx_buffer_output = 01110000, got " &
@@ -1400,7 +1412,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1417,7 +1429,7 @@ begin
         -- Bit 1
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00111000"
         report (
             "Expected master_tx_buffer_output = 00111000, got " &
@@ -1445,7 +1457,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1462,7 +1474,7 @@ begin
         -- Bit 2
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00011100"
         report (
             "Expected master_tx_buffer_output = 00011100, got " &
@@ -1490,7 +1502,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1507,7 +1519,7 @@ begin
         -- Bit 3
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001110"
         report (
             "Expected master_tx_buffer_output = 00001110, got " &
@@ -1535,7 +1547,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1552,7 +1564,7 @@ begin
         -- Bit 4
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000111"
         report (
             "Expected master_tx_buffer_output = 00000111, got " &
@@ -1580,7 +1592,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -1597,7 +1609,7 @@ begin
         -- Bit 5
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000011"
         report (
             "Expected master_tx_buffer_output = 00000011, got " &
@@ -1625,7 +1637,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -1642,7 +1654,7 @@ begin
         -- Bit 6
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -1670,7 +1682,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -1687,7 +1699,7 @@ begin
         -- Bit 7
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -1715,7 +1727,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1731,7 +1743,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -1801,10 +1813,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -1833,10 +1845,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10000000";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00000000";
@@ -1846,7 +1858,7 @@ begin
         slave_rx_buffer_input  <= "11111010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "10000000"
@@ -1882,17 +1894,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1908,7 +1920,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "01000000"
         report (
             "Expected master_tx_buffer_output = 01000000, got " &
@@ -1937,7 +1949,7 @@ begin
         -- Bit 1
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1953,7 +1965,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00100000"
         report (
             "Expected master_tx_buffer_output = 00100000, got " &
@@ -1982,7 +1994,7 @@ begin
         -- Bit 2
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -1998,7 +2010,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00010000"
         report (
             "Expected master_tx_buffer_output = 00010000, got " &
@@ -2027,7 +2039,7 @@ begin
         -- Bit 3
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2043,7 +2055,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001000"
         report (
             "Expected master_tx_buffer_output = 00001000, got " &
@@ -2072,7 +2084,7 @@ begin
         -- Bit 4
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2088,7 +2100,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000100"
         report (
             "Expected master_tx_buffer_output = 00000100, got " &
@@ -2117,7 +2129,7 @@ begin
         -- Bit 5
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2133,7 +2145,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000010"
         report (
             "Expected master_tx_buffer_output = 00000010, got " &
@@ -2162,7 +2174,7 @@ begin
         -- Bit 6
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2178,7 +2190,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -2207,7 +2219,7 @@ begin
         -- Bit 7
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -2223,7 +2235,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2251,7 +2263,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -2313,7 +2325,7 @@ begin
         -- Second consecutive transmission with SPI mode 1.
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00000011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10101110";
@@ -2323,7 +2335,7 @@ begin
         slave_rx_buffer_input  <= "00010110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "00000011"
@@ -2359,17 +2371,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -2385,7 +2397,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -2414,7 +2426,7 @@ begin
         -- Bit 1
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -2430,7 +2442,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2459,7 +2471,7 @@ begin
         -- Bit 2
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2475,7 +2487,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2504,7 +2516,7 @@ begin
         -- Bit 3
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2520,7 +2532,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2549,7 +2561,7 @@ begin
         -- Bit 4
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2565,7 +2577,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2594,7 +2606,7 @@ begin
         -- Bit 5
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2610,7 +2622,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2639,7 +2651,7 @@ begin
         -- Bit 6
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2655,7 +2667,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2684,7 +2696,7 @@ begin
         -- Bit 7
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2700,7 +2712,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -2728,7 +2740,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -2794,10 +2806,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -2826,10 +2838,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11011011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00100001";
@@ -2837,7 +2849,7 @@ begin
         slave_rx_buffer_input  <= "01011000";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "11011011"
@@ -2873,17 +2885,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "01101101"
         report (
             "Expected master_tx_buffer_output = 01101101, got " &
@@ -2911,7 +2923,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -2928,7 +2940,7 @@ begin
         -- Bit 1
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00110110"
         report (
             "Expected master_tx_buffer_output = 00110110, got " &
@@ -2956,7 +2968,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -2973,7 +2985,7 @@ begin
         -- Bit 2
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00011011"
         report (
             "Expected master_tx_buffer_output = 00011011, got " &
@@ -3001,7 +3013,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3018,7 +3030,7 @@ begin
         -- Bit 3
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001101"
         report (
             "Expected master_tx_buffer_output = 00001101, got " &
@@ -3046,7 +3058,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3063,7 +3075,7 @@ begin
         -- Bit 4
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000110"
         report (
             "Expected master_tx_buffer_output = 00000110, got " &
@@ -3091,7 +3103,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3108,7 +3120,7 @@ begin
         -- Bit 5
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000011"
         report (
             "Expected master_tx_buffer_output = 00000011, got " &
@@ -3136,7 +3148,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3153,7 +3165,7 @@ begin
         -- Bit 6
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -3181,7 +3193,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3198,7 +3210,7 @@ begin
         -- Bit 7
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -3226,7 +3238,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3242,7 +3254,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -3304,7 +3316,7 @@ begin
         -- Second consecutive transmission with SPI mode 2.
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01011111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11110000";
@@ -3314,7 +3326,7 @@ begin
         slave_rx_buffer_input  <= "00111110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "01011111"
@@ -3350,17 +3362,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00101111"
         report (
             "Expected master_tx_buffer_output = 00101111, got " &
@@ -3388,7 +3400,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3405,7 +3417,7 @@ begin
         -- Bit 1
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00010111"
         report (
             "Expected master_tx_buffer_output = 00010111, got " &
@@ -3433,7 +3445,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3450,7 +3462,7 @@ begin
         -- Bit 2
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001011"
         report (
             "Expected master_tx_buffer_output = 00001011, got " &
@@ -3478,7 +3490,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3495,7 +3507,7 @@ begin
         -- Bit 3
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000101"
         report (
             "Expected master_tx_buffer_output = 00000101, got " &
@@ -3523,7 +3535,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3540,7 +3552,7 @@ begin
         -- Bit 4
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000010"
         report (
             "Expected master_tx_buffer_output = 00000010, got " &
@@ -3568,7 +3580,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3585,7 +3597,7 @@ begin
         -- Bit 5
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -3613,7 +3625,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3630,7 +3642,7 @@ begin
         -- Bit 6
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -3658,7 +3670,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3675,7 +3687,7 @@ begin
         -- Bit 7
         -- Buffer updates and shift registers behavior tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -3703,7 +3715,7 @@ begin
 
         -- MOSI/MISO lines feed tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3719,7 +3731,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -3789,10 +3801,10 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert buffer values after reset.
         assert master_tx_buffer_output = "00000000"
@@ -3821,10 +3833,10 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00101101";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01110000";
@@ -3834,7 +3846,7 @@ begin
         slave_rx_buffer_input  <= "11110011";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "00101101"
@@ -3870,17 +3882,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3896,7 +3908,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00010110"
         report (
             "Expected master_tx_buffer_output = 00010110, got " &
@@ -3925,7 +3937,7 @@ begin
         -- Bit 1
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -3941,7 +3953,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001011"
         report (
             "Expected master_tx_buffer_output = 00001011, got " &
@@ -3970,7 +3982,7 @@ begin
         -- Bit 2
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -3986,7 +3998,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000101"
         report (
             "Expected master_tx_buffer_output = 00000101, got " &
@@ -4015,7 +4027,7 @@ begin
         -- Bit 3
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4031,7 +4043,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000010"
         report (
             "Expected master_tx_buffer_output = 00000010, got " &
@@ -4060,7 +4072,7 @@ begin
         -- Bit 4
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4076,7 +4088,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -4105,7 +4117,7 @@ begin
         -- Bit 5
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4121,7 +4133,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -4150,7 +4162,7 @@ begin
         -- Bit 6
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4166,7 +4178,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -4195,7 +4207,7 @@ begin
         -- Bit 7
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4211,7 +4223,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -4239,7 +4251,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -4301,7 +4313,7 @@ begin
         -- Second consecutive transmission with SPI mode 3.
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10001111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01111110";
@@ -4311,7 +4323,7 @@ begin
         slave_rx_buffer_input  <= "01101001";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffer values after loading new values.
         assert master_tx_buffer_output = "10001111"
@@ -4347,17 +4359,17 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
 
         -- Bit 0
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4373,7 +4385,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "01000111"
         report (
             "Expected master_tx_buffer_output = 01000111, got " &
@@ -4402,7 +4414,7 @@ begin
         -- Bit 1
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4418,7 +4430,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00100011"
         report (
             "Expected master_tx_buffer_output = 00100011, got " &
@@ -4447,7 +4459,7 @@ begin
         -- Bit 2
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4463,7 +4475,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00010001"
         report (
             "Expected master_tx_buffer_output = 00010001, got " &
@@ -4492,7 +4504,7 @@ begin
         -- Bit 3
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4508,7 +4520,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00001000"
         report (
             "Expected master_tx_buffer_output = 00001000, got " &
@@ -4537,7 +4549,7 @@ begin
         -- Bit 4
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4553,7 +4565,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000100"
         report (
             "Expected master_tx_buffer_output = 00000100, got " &
@@ -4582,7 +4594,7 @@ begin
         -- Bit 5
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4598,7 +4610,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000010"
         report (
             "Expected master_tx_buffer_output = 00000010, got " &
@@ -4627,7 +4639,7 @@ begin
         -- Bit 6
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '0'
         report (
             "Expected MOSI = 0, got " &
@@ -4643,7 +4655,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000001"
         report (
             "Expected master_tx_buffer_output = 00000001, got " &
@@ -4672,7 +4684,7 @@ begin
         -- Bit 7
         -- MOSI/MISO lines feed tests.
         wait until falling_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert mosi = '1'
         report (
             "Expected MOSI = 1, got " &
@@ -4688,7 +4700,7 @@ begin
 
         -- Buffer updates and shift registers behavior tests.
         wait until rising_edge(sclk);
-        wait for 1 fs;
+        wait for 1 ns;
         assert master_tx_buffer_output = "00000000"
         report (
             "Expected master_tx_buffer_output = 00000000, got " &
@@ -4716,7 +4728,7 @@ begin
 
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- End of the transmission
         -- Assert master and slave buffers' values after the transmission.
@@ -4790,13 +4802,13 @@ begin
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10101011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01010001";
@@ -4806,22 +4818,22 @@ begin
         slave_rx_buffer_input  <= "11010100";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -4852,7 +4864,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 2
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10110110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10111111";
@@ -4862,22 +4874,22 @@ begin
         slave_rx_buffer_input  <= "00100111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -4908,7 +4920,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 3
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00110001";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11111111";
@@ -4918,22 +4930,22 @@ begin
         slave_rx_buffer_input  <= "11010110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -4964,7 +4976,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 4
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00110001";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11111111";
@@ -4974,22 +4986,22 @@ begin
         slave_rx_buffer_input  <= "11010110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5020,11 +5032,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 5
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11100110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00010111";
@@ -5034,22 +5046,22 @@ begin
         slave_rx_buffer_input  <= "10001111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5080,7 +5092,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 6
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00000110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11110110";
@@ -5090,22 +5102,22 @@ begin
         slave_rx_buffer_input  <= "01011101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5136,11 +5148,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 7
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11101010";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00011110";
@@ -5150,22 +5162,22 @@ begin
         slave_rx_buffer_input  <= "00110111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5196,11 +5208,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 8
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '0';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10110010";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11101101";
@@ -5210,22 +5222,22 @@ begin
         slave_rx_buffer_input  <= "01000010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5256,7 +5268,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 9
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01001110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00000011";
@@ -5266,22 +5278,22 @@ begin
         slave_rx_buffer_input  <= "11110111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5312,7 +5324,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 10
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00001101";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11011101";
@@ -5322,22 +5334,22 @@ begin
         slave_rx_buffer_input  <= "11111111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5368,7 +5380,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 11
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00000100";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10010110";
@@ -5378,22 +5390,22 @@ begin
         slave_rx_buffer_input  <= "00000000";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5425,13 +5437,13 @@ begin
         -- Transmission 12
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert CPOL and CPHA remain untouched despite the reset.
         assert cpol = '0'
@@ -5462,7 +5474,7 @@ begin
             severity error;
 
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11010100";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11000000";
@@ -5472,22 +5484,22 @@ begin
         slave_rx_buffer_input  <= "01000111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5518,7 +5530,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 13
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10001011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01010101";
@@ -5528,22 +5540,22 @@ begin
         slave_rx_buffer_input  <= "00010100";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5574,11 +5586,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 14
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '0';
         cpha <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01101011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10110001";
@@ -5588,22 +5600,22 @@ begin
         slave_rx_buffer_input  <= "01110001";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5634,7 +5646,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 15
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01111111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11111000";
@@ -5644,22 +5656,22 @@ begin
         slave_rx_buffer_input  <= "01100101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5690,7 +5702,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 16
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11110101";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11011010";
@@ -5700,22 +5712,22 @@ begin
         slave_rx_buffer_input  <= "01100101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5746,11 +5758,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 17
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11111111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11001011";
@@ -5760,22 +5772,22 @@ begin
         slave_rx_buffer_input  <= "00101100";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5806,7 +5818,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 18
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10000010";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00011100";
@@ -5816,22 +5828,22 @@ begin
         slave_rx_buffer_input  <= "11110001";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5862,7 +5874,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 19
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10000010";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01111011";
@@ -5872,22 +5884,22 @@ begin
         slave_rx_buffer_input  <= "01000000";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5918,11 +5930,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 20
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '0';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00101001";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00000100";
@@ -5932,22 +5944,22 @@ begin
         slave_rx_buffer_input  <= "10101101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -5978,7 +5990,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 21
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11011001";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "01111110";
@@ -5988,22 +6000,22 @@ begin
         slave_rx_buffer_input  <= "10111001";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6034,11 +6046,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 22
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '0';
         cpha <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01110000";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00000101";
@@ -6048,22 +6060,22 @@ begin
         slave_rx_buffer_input  <= "10101101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6095,13 +6107,13 @@ begin
         -- Transmission 23
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         rst <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert CPOL and CPHA remain untouched despite the reset.
         assert cpol = '0'
@@ -6131,7 +6143,7 @@ begin
             )
             severity error;
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11111111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00001011";
@@ -6141,22 +6153,22 @@ begin
         slave_rx_buffer_input  <= "10100100";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6187,11 +6199,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 24
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "01001000";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "10001010";
@@ -6201,22 +6213,22 @@ begin
         slave_rx_buffer_input  <= "11001111";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6247,11 +6259,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 25
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "11011110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11110000";
@@ -6261,22 +6273,22 @@ begin
         slave_rx_buffer_input  <= "00000010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6307,11 +6319,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 26
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '1';
         cpha <= '0';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10011110";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11100110";
@@ -6321,22 +6333,22 @@ begin
         slave_rx_buffer_input  <= "11001100";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6367,7 +6379,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 27
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00100100";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11100110";
@@ -6377,22 +6389,22 @@ begin
         slave_rx_buffer_input  <= "00111110";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6423,15 +6435,15 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 28
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6462,7 +6474,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 29
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10100011";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11011101";
@@ -6472,22 +6484,22 @@ begin
         slave_rx_buffer_input  <= "00001000";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6518,7 +6530,7 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 30
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "10000000";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "11011101";
@@ -6528,22 +6540,22 @@ begin
         slave_rx_buffer_input  <= "01110010";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"
@@ -6574,11 +6586,11 @@ begin
         -- ---------------------------------------------------------------------
         -- Transmission 31
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         cpol <= '0';
         cpha <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_input <= "00000111";
         master_tx_buffer_load  <= '1';
         master_rx_buffer_input <= "00111111";
@@ -6588,22 +6600,22 @@ begin
         slave_rx_buffer_input  <= "01111101";
         slave_rx_buffer_load   <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         master_tx_buffer_load <= '0';
         master_rx_buffer_load <= '0';
         slave_tx_buffer_load  <= '0';
         slave_rx_buffer_load  <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
         start_transmission <= '0';
         wait until cs = '0';
         wait until cs = '1';
         wait until rising_edge(clk);
-        wait for 1 fs;
+        wait for 1 ns;
 
         -- Assert master and slave buffers' values after the transmission.
         assert master_tx_buffer_output = "00000000"

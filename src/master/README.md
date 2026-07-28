@@ -5,7 +5,7 @@
 - **File:**  spi_master.vhd
 - **Author:**  Roi (r.lopezbarata@gmail.com)
 - **Version:**  1.0
-- **Date:**  21-07-2026
+- **Date:**  28-07-2026
 - **Copyright:**  This work is licensed under the MIT License.
 - **Brief:**  Implementation of an SPI master module in VHDL.
 
@@ -72,9 +72,11 @@ flexible data handling during SPI communication.
 ## Processes
 - fsm_proc: ( clk )
   - **Description**
-  Implements the SPI master state machine, generating SCLK, controlling CS, and shifting data between the tx/rx buffers and the SPI data lines according to the selected CPOL/CPHA mode.
+  Implements the SPI master state machine, generating SCLK, controlling CS and shifting data between the tx/rx buffers and the SPI data lines according to the selected CPOL/CPHA configuration.
 
 ## State machines
 
-- Implements the SPI master state machine, generating SCLK, controlling CS, and shifting data between the tx/rx buffers and the SPI data lines according to the selected CPOL/CPHA mode.
+- Implements the SPI master state machine, generating SCLK, controlling CS
+and shifting data between the tx/rx buffers and the SPI data lines according
+to the selected CPOL/CPHA configuration.
 ![Diagram_state_machine_0]( fsm_spi_master_00.svg "Diagram")

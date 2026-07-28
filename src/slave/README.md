@@ -5,7 +5,7 @@
 - **File:**  spi_slave.vhd
 - **Author:**  Roi (r.lopezbarata@gmail.com)
 - **Version:**  1.0
-- **Date:**  24-07-2026
+- **Date:**  28-07-2026
 - **Copyright:**  This work is licensed under the MIT License.
 - **Brief:**  Implementation of an SPI slave module in VHDL.
 

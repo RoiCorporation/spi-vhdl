@@ -3,7 +3,7 @@
 --! @file spi_slave.vhd
 --! @author Roi (r.lopezbarata@gmail.com)
 --! @version 1.0
---! @date 24-07-2026
+--! @date 28-07-2026
 --! @copyright This work is licensed under the MIT License.
 --! @brief Implementation of an SPI slave module in VHDL.
 --------------------------------------------------------------------------------
@@ -80,7 +80,10 @@ begin
     tx_buffer_output <= tx_buffer_output_data;
     rx_buffer_output <= rx_buffer_output_data;
 
-    --! Handles buffer load control and end-of-transfer behavior. It runs on the local clock and updates the transmit/receive outputs when the slave is idle and when buffer load signals are asserted. It also handles the buffer and idle flag updates on reset.
+    --! Handles buffer load control and end-of-transfer behavior. It runs on the
+    --! local clock and updates the transmit/receive outputs when the slave is
+    --! idle and when buffer load signals are asserted. It also handles the buffer
+    --! and idle flag updates on reset.
     internal_proc : process (clk)
     begin
 
@@ -113,7 +116,9 @@ begin
         end if;
     end process internal_proc;
 
-    --! Implements SPI data sampling and shifting based on clock polarity (CPOL) and phase (CPHA). It updates the MISO output and the receive shift register on the appropriate SCLK edge.
+    --! Implements SPI data sampling and shifting based on clock polarity (CPOL)
+    --! and phase (CPHA). It updates the MISO output and the receive shift register
+    --! on the appropriate SCLK edge.
     communication_proc : process (sclk, cs)
         variable bit_count : natural := 0;
 
