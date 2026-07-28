@@ -74,7 +74,6 @@ architecture rtl of main_tb is
     signal slave_rx_buffer_input  : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer input for the SPI slave module.
     signal slave_rx_buffer_output : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Receive buffer output for the SPI slave module.
     signal slave_rx_buffer_load   : std_logic                                       := '0'; --! Load signal for the SPI slave's receive buffer.
-    signal slave_rx_shift_reg     : std_logic_vector(bits_per_message - 1 downto 0) := (others => '0'); --! Auxiliary shift register for receiving data in the SPI slave module.
 begin
 
     --! Instance of the SPI master module. It connects the testbench signals to
