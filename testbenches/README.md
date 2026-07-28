@@ -9,8 +9,6 @@
 - **Copyright:**  This work is licensed under the MIT License.
 - **Brief:**  Testbench for the SPI master and slave modules developed in this project.
 
-## Diagram
-![Diagram](main_tb.svg "Diagram")
 ## Description
 
 This is a testbench for the SPI master and slave modules developed in this
