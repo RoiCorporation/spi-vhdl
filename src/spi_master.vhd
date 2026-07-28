@@ -100,7 +100,7 @@ begin
                 current_bits_processed := 0;
                 mosi <= '0';
 
-                else
+            else
                 case state is
                     when IDLE =>
                         cs                <= '1';

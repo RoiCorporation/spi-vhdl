@@ -81,7 +81,7 @@ begin
                 outbound_buffer_output_data <= (others => '0');
                 entered_idle_flag           <= '1';
 
-                elsif cs = '1' then
+            elsif cs = '1' then
                 if entered_idle_flag = '0' then
                     inbound_buffer_output_data <= rx_shift_reg;
                     entered_idle_flag          <= '1';
@@ -93,7 +93,7 @@ begin
                     outbound_buffer_output_data <= outbound_buffer_input;
                 end if;
 
-                elsif cs = '0' then
+            elsif cs = '0' then
                 entered_idle_flag <= '0';
             end if;
         end if;
@@ -120,24 +120,24 @@ begin
                         rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
                         bit_count := bit_count + 1;
 
-                        elsif cpha = '1' then -- SPI mode 1
+                    elsif cpha = '1' then -- SPI mode 1
                         miso <= outbound_buffer_output_data(bit_count);
                     end if;
 
-                    elsif cpol = '1' then
+                elsif cpol = '1' then
                     if cpha = '0' then -- SPI mode 2
                         if bit_count < bits_per_message then
                             miso <= outbound_buffer_output_data(bit_count);
                         end if;
 
-                        elsif cpha = '1' then -- SPI mode 3
+                    elsif cpha = '1' then -- SPI mode 3
                         rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
                         bit_count := bit_count + 1;
                     end if;
                 end if;
             end if;
 
-            elsif falling_edge(sclk) then
+        elsif falling_edge(sclk) then
             if cs = '0' then
                 if cpol = '0' then
                     if cpha = '0' then -- SPI mode 0
@@ -145,17 +145,17 @@ begin
                             miso <= outbound_buffer_output_data(bit_count);
                         end if;
 
-                        elsif cpha = '1' then -- SPI mode 1
+                    elsif cpha = '1' then -- SPI mode 1
                         rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
                         bit_count := bit_count + 1;
                     end if;
 
-                    elsif cpol = '1' then
+                elsif cpol = '1' then
                     if cpha = '0' then -- SPI mode 2
                         rx_shift_reg <= mosi & rx_shift_reg(bits_per_message - 1 downto 1);
                         bit_count := bit_count + 1;
 
-                        elsif cpha = '1' then -- SPI mode 3
+                    elsif cpha = '1' then -- SPI mode 3
                         miso <= outbound_buffer_output_data(bit_count);
                     end if;
                 end if;

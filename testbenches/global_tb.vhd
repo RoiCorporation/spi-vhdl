@@ -5442,11 +5442,24 @@ begin
             to_string(cpol)
             )
             severity error;
-
         assert cpha = '1'
         report (
             "Expected cpha = 1, got " &
             to_string(cpha)
+            )
+            severity error;
+
+        -- Assert both master's buffers are reset to 0 with the reset pulse.
+        assert master_outbound_buffer_output = "00000000"
+        report (
+            "Expected master_outbound_buffer_output = 00000000, got " &
+            to_string(master_outbound_buffer_output)
+            )
+            severity error;
+        assert master_inbound_buffer_output = "00000000"
+        report (
+            "Expected master_inbound_buffer_output = 00000000, got " &
+            to_string(master_inbound_buffer_output)
             )
             severity error;
 
@@ -6082,6 +6095,43 @@ begin
 
         -- ---------------------------------------------------------------------
         -- Transmission 23
+        wait until rising_edge(clk);
+        wait until rising_edge(clk);
+        wait for 1 fs;
+        rst <= '1';
+        wait until rising_edge(clk);
+        wait for 1 fs;
+        rst <= '0';
+        wait until rising_edge(clk);
+        wait for 1 fs;
+
+        -- Assert CPOL and CPHA remain untouched despite the reset.
+        assert cpol = '0'
+        report (
+            "Expected cpol = 0, got " &
+            to_string(cpol)
+            )
+            severity error;
+        assert cpha = '0'
+        report (
+            "Expected cpha = 0, got " &
+            to_string(cpha)
+            )
+            severity error;
+
+        -- Assert both master's buffers are reset to 0 with the reset pulse.
+        assert master_outbound_buffer_output = "00000000"
+        report (
+            "Expected master_outbound_buffer_output = 00000000, got " &
+            to_string(master_outbound_buffer_output)
+            )
+            severity error;
+        assert master_inbound_buffer_output = "00000000"
+        report (
+            "Expected master_inbound_buffer_output = 00000000, got " &
+            to_string(master_inbound_buffer_output)
+            )
+            severity error;
         wait until rising_edge(clk);
         wait for 1 fs;
         master_outbound_buffer_input <= "11111111";
