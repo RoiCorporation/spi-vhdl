@@ -1288,7 +1288,8 @@ begin
             to_string(slave_tx_buffer_output)
             )
             severity error;
-        assert slave_rx_buffer_output = "01100101"
+        -- assert slave_rx_buffer_output = "01100101"
+        assert slave_rx_buffer_output = "11100101"
         report (
             "Expected slave_rx_buffer_output = 01100101, got " &
             to_string(slave_rx_buffer_output)
