@@ -24,8 +24,8 @@
 --! @title SPI master implementation in VHDL
 --! @file spi_master.vhd
 --! @author Roi (r.lopezbarata@gmail.com)
---! @version 1.0
---! @date 28-07-2026
+--! @version 1.1
+--! @date 03-08-2026
 --! @copyright This work is licensed under the MIT License.
 --! @brief Implementation of an SPI master module in VHDL.
 --------------------------------------------------------------------------------

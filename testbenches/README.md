@@ -4,8 +4,8 @@
 - **Title:**  VHDL testbench for SPI master and slave modules
 - **File:**  main_tb.vhd
 - **Author:**  Roi (r.lopezbarata@gmail.com)
-- **Version:**  1.0
-- **Date:**  28-07-2026
+- **Version:**  1.1
+- **Date:**  03-08-2026
 - **Copyright:**  This work is licensed under the MIT License.
 - **Brief:**  Testbench for the SPI master and slave modules developed in this project.
 
