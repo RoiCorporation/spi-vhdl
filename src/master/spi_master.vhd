@@ -1,13 +1,4 @@
 --------------------------------------------------------------------------------
---! @title SPI master implementation in VHDL
---! @file spi_master.vhd
---! @author Roi (r.lopezbarata@gmail.com)
---! @version 1.0
---! @date 28-07-2026
---! @copyright This work is licensed under the MIT License.
---! @brief Implementation of an SPI master module in VHDL.
---------------------------------------------------------------------------------
-
 -- MIT License
 
 -- Copyright (c) 2026 Roi Lopez Barata
@@ -29,6 +20,14 @@
 -- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
+--------------------------------------------------------------------------------
+--! @title SPI master implementation in VHDL
+--! @file spi_master.vhd
+--! @author Roi (r.lopezbarata@gmail.com)
+--! @version 1.0
+--! @date 28-07-2026
+--! @copyright This work is licensed under the MIT License.
+--! @brief Implementation of an SPI master module in VHDL.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -77,8 +76,7 @@ end entity spi_master;
 architecture beh of spi_master is
     type state_t is (
         IDLE, --! Idle state (no active transmission -> CS = 1).
-        TRANSMIT, --! Transmission state (active transmission -> CS = 0).
-        FINISH_TRANSMISSION --! Finish transmission state (finished the transmission -> CS = 1).
+        TRANSMIT --! Transmission state (active transmission -> CS = 0).
     );
     signal state                 : state_t; --! Current state of the SPI master state machine.
     signal last_shift_bit        : std_logic                                       := '0'; --! Flag to indicate if the last bit of the current transmission has been processed.
@@ -234,21 +232,12 @@ begin
                             last_shift_bit <= '1';
                         end if;
 
-                        -- Move to the finish transmission state when the last bit is sent/received.
+                        -- Move to the Idle transmission state when the last bit is sent/received.
                         if last_shift_bit = '1' and (sclk_rising_edge = '1' or sclk_falling_edge = '1') then
-                            state <= FINISH_TRANSMISSION;
+                            state <= IDLE;
                         end if;
 
-                    when FINISH_TRANSMISSION =>
-                        -- Finish state: release CS, restore idle clock polarity, and
-                        -- return to the IDLE state so the next transfer can begin.
-                        cs                <= '1';
-                        sclk              <= cpol;
-                        sclk_rising_edge  <= '0';
-                        sclk_falling_edge <= '0';
-                        state             <= IDLE;
                 end case;
-
             end if;
         end if;
 

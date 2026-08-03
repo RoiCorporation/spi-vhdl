@@ -62,11 +62,10 @@ flexible data handling during SPI communication.
 
 
 ### *state_t*
-| Name                | Description                                                      |
-| ------------------- | ---------------------------------------------------------------- |
-| IDLE                | Idle state (no active transmission -> CS = 1).                   |
-| TRANSMIT            | Transmission state (active transmission -> CS = 0).              |
-| FINISH_TRANSMISSION | Finish transmission state (finished the transmission -> CS = 1). |
+| Name     | Description                                         |
+| -------- | --------------------------------------------------- |
+| IDLE     | Idle state (no active transmission -> CS = 1).      |
+| TRANSMIT | Transmission state (active transmission -> CS = 0). |
 
 
 ## Processes

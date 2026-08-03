@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)&emsp;[![SPI implementation tests](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml/badge.svg)](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml)
+[![](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)&emsp;[![SPI implementation tests](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml/badge.svg)](https://github.com/RoiCorporation/spi-vhdl/actions/workflows/tests.yaml)
 
 
 
